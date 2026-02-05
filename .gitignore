@@ -1,0 +1,42 @@
+# Databricks artifacts
+.databricks/
+*.pyc
+__pycache__/
+*.egg-info/
+
+# Data files (não versionar arquivos grandes)
+Parte2_AnaliseDados/data/
+*.parquet
+*.csv
+*.txt
+!requirements.txt
+!README.md
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Databricks outputs
+dbfs/
+outputs/
+resultados/
