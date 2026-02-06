@@ -3,7 +3,7 @@
 
 ---
 
-**Elaborado por:** Engenharia de Dados  
+**Elaborado por:** Guilherme Vieira
 **Data:** 06 de Fevereiro de 2026  
 **Versão:** 1.0
 
