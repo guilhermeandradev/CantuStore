@@ -26,10 +26,10 @@
 
 # COMMAND ----------
 
-# Top 50 carrinhos por p_totalprice (convertendo de centavos para reais)
+# Top 50 carrinhos por p_totalprice
 df_top50_carts = df_carts.withColumn(
     "p_totalprice_reais", 
-    col("p_totalprice") / 100
+    col("p_totalprice")
 ).orderBy(col("p_totalprice").desc()).limit(50)
 
 print(f"✓ Top 50 carrinhos selecionados")
@@ -85,7 +85,7 @@ df_export.show(5, truncate=False)
 
 # COMMAND ----------
 
-# Agregar entries: soma de quantidade e contagem (converter preços para reais)
+# Agregar entries: soma de quantidade e contagem
 df_entries_agg = df_cartentries.groupBy("p_order").agg(
     sum("p_quantity").alias("sum_quantity"),
     count("PK").alias("count_entries"),
@@ -93,7 +93,7 @@ df_entries_agg = df_cartentries.groupBy("p_order").agg(
         struct(
             col("p_product"),
             col("p_quantity"),
-            (col("p_totalprice") / 100).alias("p_totalprice")  # Converter de centavos para reais
+            col("p_totalprice")
         )
     ).alias("entries")
 )
