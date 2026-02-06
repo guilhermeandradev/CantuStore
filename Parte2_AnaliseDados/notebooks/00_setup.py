@@ -124,10 +124,11 @@ verificar_dados()
 # COMMAND ----------
 
 # Configurações de otimização
-spark.conf.set("spark.sql.adaptive.enabled", "true")
-spark.conf.set("spark.sql.adaptive.coalescePartitions.enabled", "true")
+# Serverless Databricks já tem AQE habilitado por padrão
+# spark.conf.set("spark.sql.adaptive.enabled", "true")
+# spark.conf.set("spark.sql.adaptive.coalescePartitions.enabled", "true")
 
-print("✓ Configurações do Spark aplicadas")
+print("✓ Configurações do Spark aplicadas (usando defaults do Serverless)")
 
 # COMMAND ----------
 

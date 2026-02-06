@@ -47,23 +47,23 @@ print(f"✓ tb_paymentinfos: {df_paymentinfos.count():,} registros")
 
 print("Carregando tabelas CSV...")
 
-# Carregar tb_users
-df_users = spark.read.csv(PATHS["users"], header=True, inferSchema=True)
+# Carregar tb_users (delimiter: pipe)
+df_users = spark.read.csv(PATHS["users"], header=True, inferSchema=True, sep="|")
 df_users.createOrReplaceTempView("users")
 print(f"✓ tb_users: {df_users.count():,} registros")
 
-# Carregar tb_regions
-df_regions = spark.read.csv(PATHS["regions"], header=True, inferSchema=True)
+# Carregar tb_regions (delimiter: pipe)
+df_regions = spark.read.csv(PATHS["regions"], header=True, inferSchema=True, sep="|")
 df_regions.createOrReplaceTempView("regions")
 print(f"✓ tb_regions: {df_regions.count():,} registros")
 
-# Carregar tb_paymentmodes
-df_paymentmodes = spark.read.csv(PATHS["paymentmodes"], header=True, inferSchema=True)
+# Carregar tb_paymentmodes (delimiter: pipe)
+df_paymentmodes = spark.read.csv(PATHS["paymentmodes"], header=True, inferSchema=True, sep="|")
 df_paymentmodes.createOrReplaceTempView("paymentmodes")
 print(f"✓ tb_paymentmodes: {df_paymentmodes.count():,} registros")
 
-# Carregar tb_cmssitelp
-df_cmssitelp = spark.read.csv(PATHS["cmssitelp"], header=True, inferSchema=True)
+# Carregar tb_cmssitelp (delimiter: pipe)
+df_cmssitelp = spark.read.csv(PATHS["cmssitelp"], header=True, inferSchema=True, sep="|")
 df_cmssitelp.createOrReplaceTempView("cmssitelp")
 print(f"✓ tb_cmssitelp: {df_cmssitelp.count():,} registros")
 
@@ -125,8 +125,8 @@ df_carts_items = df_carts.alias("c").join(
 # Criar view temporária
 df_carts_items.createOrReplaceTempView("carts_items")
 
-# Cache para performance
-df_carts_items.cache()
+# Cache não é necessário no Serverless - otimização automática
+# df_carts_items.cache()
 
 print(f"✓ df_carts_items criado: {df_carts_items.count():,} registros")
 df_carts_items.show(5)

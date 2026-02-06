@@ -133,7 +133,8 @@ df_melhores_lancamentos.show(20, truncate=False)
 # COMMAND ----------
 
 # Para os top 10 produtos, ver evolução nos 3 primeiros meses
-top_10_produtos = df_primeiro_mes.orderBy(col("qtd_carrinhos").desc()).limit(10).select("product").rdd.flatMap(lambda x: x).collect()
+# Convertido para list comprehension (Serverless não suporta RDD)
+top_10_produtos = [row.product for row in df_primeiro_mes.orderBy(col("qtd_carrinhos").desc()).limit(10).select("product").collect()]
 
 df_evolucao = df_carts_items.filter(col("product").isin(top_10_produtos)).groupBy("product", "ano_mes").agg(
     count("cart_pk").alias("qtd_carrinhos")

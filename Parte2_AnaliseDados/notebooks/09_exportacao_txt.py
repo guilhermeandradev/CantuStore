@@ -121,7 +121,8 @@ df_final_export = df_export.join(
 # Ordenar por valor (maior primeiro)
 df_final_export = df_final_export.orderBy(col("cart_totalprice").desc())
 
-df_final_export.cache()
+# Cache não é necessário no Serverless - otimização automática
+# df_final_export.cache()
 print(f"✓ DataFrame final preparado: {df_final_export.count()} registros")
 
 # COMMAND ----------

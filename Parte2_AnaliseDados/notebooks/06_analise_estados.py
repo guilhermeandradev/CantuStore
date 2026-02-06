@@ -71,7 +71,8 @@ print("✓ Dados temporais por estado calculados")
 # COMMAND ----------
 
 # Top 5 estados
-top_5_estados = df_abandonos_estado.limit(5).select("estado").rdd.flatMap(lambda x: x).collect()
+# Convertido para list comprehension (Serverless não suporta RDD)
+top_5_estados = [row.estado for row in df_abandonos_estado.limit(5).select("estado").collect()]
 
 df_top5_evolucao = df_estado_temporal.filter(col("estado").isin(top_5_estados)).orderBy("ano_mes", "estado")
 
