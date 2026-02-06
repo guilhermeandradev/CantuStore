@@ -21,7 +21,7 @@ Este guia detalha o processo completo de integração entre GitHub e Databricks 
 
 ```bash
 # Clone o repositório
-git clone https://github.com/SEU_USUARIO/cantustore-analise-carrinhos.git
+git clone https://github.com/SEU_USUARIO/CantuStore.git
 cd cantustore-analise-carrinhos
 
 # Copie os arquivos do projeto
