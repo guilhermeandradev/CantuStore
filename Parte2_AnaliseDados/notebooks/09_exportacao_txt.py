@@ -26,12 +26,15 @@
 
 # COMMAND ----------
 
-# Top 50 carrinhos por p_totalprice
-df_top50_carts = df_carts.orderBy(col("p_totalprice").desc()).limit(50)
+# Top 50 carrinhos por p_totalprice (convertendo de centavos para reais)
+df_top50_carts = df_carts.withColumn(
+    "p_totalprice_reais", 
+    col("p_totalprice") / 100
+).orderBy(col("p_totalprice").desc()).limit(50)
 
 print(f"✓ Top 50 carrinhos selecionados")
 print("="*80)
-df_top50_carts.select("PK", "createdTS", "p_totalprice").show(10)
+df_top50_carts.select("PK", "createdTS", "p_totalprice_reais").show(10)
 
 # COMMAND ----------
 
@@ -64,7 +67,7 @@ df_export = df_top50_carts.alias("c").join(
 ).select(
     col("c.PK").alias("cart_pk"),
     col("c.createdTS").alias("cart_createdTS"),
-    col("c.p_totalprice").alias("cart_totalprice"),
+    (col("c.p_totalprice_reais")).alias("cart_totalprice"),  # Usar preço já convertido
     coalesce(col("u.p_uid"), lit("")).alias("user_uid"),
     coalesce(col("pm.p_code"), lit("")).alias("paymentmode_code"),
     coalesce(col("pi.p_installments"), lit(0)).alias("paymentinfo_installments"),
@@ -82,7 +85,7 @@ df_export.show(5, truncate=False)
 
 # COMMAND ----------
 
-# Agregar entries: soma de quantidade e contagem
+# Agregar entries: soma de quantidade e contagem (converter preços para reais)
 df_entries_agg = df_cartentries.groupBy("p_order").agg(
     sum("p_quantity").alias("sum_quantity"),
     count("PK").alias("count_entries"),
@@ -90,7 +93,7 @@ df_entries_agg = df_cartentries.groupBy("p_order").agg(
         struct(
             col("p_product"),
             col("p_quantity"),
-            col("p_totalprice")
+            (col("p_totalprice") / 100).alias("p_totalprice")  # Converter de centavos para reais
         )
     ).alias("entries")
 )

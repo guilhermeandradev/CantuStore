@@ -25,7 +25,7 @@ df_carts_estados = df_carts.alias("c").join(
     "left"
 ).select(
     col("c.PK").alias("cart_pk"),
-    col("c.p_totalprice").alias("cart_totalprice"),
+    (col("c.p_totalprice") / 100).alias("cart_totalprice"),  # Converter de centavos para reais
     col("c.createdTS").alias("cart_created"),
     col("r.p_isocodeshort").alias("estado"),
     col("a.p_postalcode").alias("cep")
@@ -156,15 +156,15 @@ df_por_regiao.show()
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- Estados com mais abandonos
+# MAGIC -- Estados com mais abandonos (preços convertidos de centavos para reais)
 # MAGIC SELECT 
 # MAGIC     r.p_isocodeshort as estado,
 # MAGIC     COUNT(DISTINCT c.PK) as qtd_carrinhos,
-# MAGIC     ROUND(SUM(c.p_totalprice), 2) as valor_total,
-# MAGIC     ROUND(AVG(c.p_totalprice), 2) as ticket_medio
+# MAGIC     ROUND(SUM(c.p_totalprice / 100), 2) as valor_total,
+# MAGIC     ROUND(AVG(c.p_totalprice / 100), 2) as ticket_medio
 # MAGIC FROM carts c
 # MAGIC LEFT JOIN addresses a ON c.p_paymentaddress = a.PK
-# MAGIC LEFT JOIN regions r ON a.p_region = r.PK
+# MAGIC LEFT JOIN regions r ON CAST(a.p_region AS BIGINT) = r.PK
 # MAGIC WHERE r.p_isocodeshort IS NOT NULL
 # MAGIC GROUP BY r.p_isocodeshort
 # MAGIC ORDER BY qtd_carrinhos DESC
