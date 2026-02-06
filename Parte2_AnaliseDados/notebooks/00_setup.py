@@ -14,7 +14,7 @@
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import (
-    col, sum, count, avg, max, min, 
+    col, sum, count, countDistinct, avg, max, min, 
     year, month, dayofmonth, date_format,
     row_number, dense_rank, lag, lead,
     when, coalesce, concat, lit, concat_ws,
