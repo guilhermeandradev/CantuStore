@@ -1,7 +1,5 @@
--- ============================================
 -- CANTUSTORE - PROVA SQL
 -- Questão 1.3 - Colaboradores e Hierarquia
--- ============================================
 
 
 WITH RECURSIVE 
@@ -67,23 +65,3 @@ LEFT JOIN chefes_mais_baixos cmb
     ON c.id = cmb.funcionario_id 
     AND cmb.rn = 1
 ORDER BY c.id;
-
--- ============================================
--- EXPLICAÇÃO:
--- ============================================
--- "Mais baixo na hierarquia" = tem MAIS chefes indiretos
--- 
--- Hierarquia:
--- Marcos (0 chefes indiretos) - TOPO
---   └─ Leonardo (1 chefe indireto: Marcos)
---       ├─ Bruno (2 chefes: Leonardo, Marcos)
---       │   ├─ Helen (3 chefes: Bruno, Leonardo, Marcos)
---       │   └─ Wilian (3 chefes: Bruno, Leonardo, Marcos)
---       └─ Mateus (2 chefes: Leonardo, Marcos)
---           └─ Cinthia (3 chefes: Mateus, Leonardo, Marcos)
--- 
--- Para Helen (salário 1500, precisa chefe >= 3000):
---   Chefes válidos: Bruno(3000), Leonardo(4500), Marcos(10000)
---   Bruno tem 2 chefes indiretos, Leonardo tem 1, Marcos tem 0
---   Mais baixo = Bruno (tem mais chefes) → Resultado: 50
--- ============================================
