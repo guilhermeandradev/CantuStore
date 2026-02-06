@@ -101,7 +101,7 @@ CantuStore/
 #### 1.3 - Clonar Repositório do GitHub
 1. No menu lateral, clique em **Workspace**
 2. Clique em **Repos** (ou **Workspace** → **Repos**)
-3. Clique em **Add Repo** (ou no ícone **+** próximo a Repos)
+3. Clique em **Add Repo** e clique em "Criar Pasta Git"
 4. Preencha:
    - **Git repository URL**: `https://github.com/guilhermeandradev/CantuStore`
    - **Git provider**: GitHub
