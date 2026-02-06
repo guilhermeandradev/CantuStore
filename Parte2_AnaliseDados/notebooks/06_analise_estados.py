@@ -21,11 +21,11 @@ df_carts_estados = df_carts.alias("c").join(
     "left"
 ).join(
     df_regions.alias("r"),
-    col("a.p_region").cast("long") == col("r.PK"),  # Cast necessário: p_region é Double, PK é Long
+    col("a.p_region") == col("r.PK"),  # ← Esta linha estava com erro antes
     "left"
 ).select(
     col("c.PK").alias("cart_pk"),
-    (col("c.p_totalprice") / 100).alias("cart_totalprice"),  # Converter de centavos para reais
+    col("c.p_totalprice").alias("cart_totalprice"),
     col("c.createdTS").alias("cart_created"),
     col("r.p_isocodeshort").alias("estado"),
     col("a.p_postalcode").alias("cep")
@@ -111,13 +111,24 @@ df_participacao.show(30, truncate=False)
 
 # COMMAND ----------
 
-# Estados ordenados por ticket médio (com pelo menos 100 carrinhos)
-df_maior_ticket = df_abandonos_estado.filter(col("qtd_carrinhos") >= 100).orderBy(col("ticket_medio").desc())
+# JOIN carts com addresses e regions para obter estados
+df_carts_estados = df_carts.alias("c").join(
+    df_addresses.alias("a"),
+    col("c.p_paymentaddress") == col("a.PK"),
+    "left"
+).join(
+    df_regions.alias("r"),
+    col("a.p_region").cast("long") == col("r.PK"),  # ← CAST ADICIONADO!
+    "left"
+).select(
+    col("c.PK").alias("cart_pk"),
+    col("c.p_totalprice").alias("cart_totalprice"),
+    col("c.createdTS").alias("cart_created"),
+    col("r.p_isocodeshort").alias("estado"),
+    col("a.p_postalcode").alias("cep")
+).filter(col("estado").isNotNull())
 
-print("="*80)
-print("ESTADOS COM MAIOR TICKET MÉDIO (min. 100 carrinhos)")
-print("="*80)
-df_maior_ticket.show(30, truncate=False)
+print(f"✓ Carrinhos com informação de estado: {df_carts_estados.count():,}")
 
 # COMMAND ----------
 
@@ -156,15 +167,15 @@ df_por_regiao.show()
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- Estados com mais abandonos (preços convertidos de centavos para reais)
+# MAGIC -- Estados com mais abandonos
 # MAGIC SELECT 
 # MAGIC     r.p_isocodeshort as estado,
 # MAGIC     COUNT(DISTINCT c.PK) as qtd_carrinhos,
-# MAGIC     ROUND(SUM(c.p_totalprice / 100), 2) as valor_total,
-# MAGIC     ROUND(AVG(c.p_totalprice / 100), 2) as ticket_medio
+# MAGIC     ROUND(SUM(c.p_totalprice), 2) as valor_total,
+# MAGIC     ROUND(AVG(c.p_totalprice), 2) as ticket_medio
 # MAGIC FROM carts c
 # MAGIC LEFT JOIN addresses a ON c.p_paymentaddress = a.PK
-# MAGIC LEFT JOIN regions r ON CAST(a.p_region AS BIGINT) = r.PK
+# MAGIC LEFT JOIN regions r ON a.p_region = r.PK
 # MAGIC WHERE r.p_isocodeshort IS NOT NULL
 # MAGIC GROUP BY r.p_isocodeshort
 # MAGIC ORDER BY qtd_carrinhos DESC
