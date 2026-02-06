@@ -18,7 +18,7 @@
 window_primeiro = Window.partitionBy("product").orderBy("ano_mes")
 
 df_primeiro_mes = df_carts_items.groupBy("product", "ano_mes").agg(
-    count("cart_pk").alias("qtd_carrinhos"),
+    countDistinct("cart_pk").alias("qtd_carrinhos"),
     sum("quantity").alias("qtd_itens"),
     spark_round(sum("entry_totalprice"), 2).alias("valor_total")
 ).withColumn(
@@ -137,7 +137,7 @@ df_melhores_lancamentos.show(20, truncate=False)
 top_10_produtos = [row.product for row in df_primeiro_mes.orderBy(col("qtd_carrinhos").desc()).limit(10).select("product").collect()]
 
 df_evolucao = df_carts_items.filter(col("product").isin(top_10_produtos)).groupBy("product", "ano_mes").agg(
-    count("cart_pk").alias("qtd_carrinhos")
+    countDistinct("cart_pk").alias("qtd_carrinhos")
 ).orderBy("product", "ano_mes")
 
 # Para cada produto, pegar os 3 primeiros meses

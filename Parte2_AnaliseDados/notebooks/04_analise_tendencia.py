@@ -16,7 +16,7 @@
 
 # Agregar por produto e mês
 df_tendencia = df_carts_items.groupBy("product", "ano_mes").agg(
-    count("cart_pk").alias("qtd_carrinhos"),
+    countDistinct("cart_pk").alias("qtd_carrinhos"),
     sum("quantity").alias("qtd_itens")
 ).orderBy("product", "ano_mes")
 

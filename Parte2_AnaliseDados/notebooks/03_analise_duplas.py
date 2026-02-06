@@ -33,7 +33,7 @@ print(f"Total de pares únicos: {df_pares.count():,}")
 
 # Contar ocorrências de cada par
 df_duplas_abandonadas = df_pares.groupBy("produto_1", "produto_2").agg(
-    count("cart_pk").alias("qtd_carrinhos")
+    countDistinct("cart_pk").alias("qtd_carrinhos")
 ).orderBy(col("qtd_carrinhos").desc())
 
 print("="*70)
@@ -88,7 +88,7 @@ df_triplas = df_carts_items.alias("a").join(
 ).distinct()
 
 df_triplas_count = df_triplas.groupBy("produto_1", "produto_2", "produto_3").agg(
-    count("cart_pk").alias("qtd_carrinhos")
+    countDistinct("cart_pk").alias("qtd_carrinhos")
 ).orderBy(col("qtd_carrinhos").desc())
 
 print("="*70)

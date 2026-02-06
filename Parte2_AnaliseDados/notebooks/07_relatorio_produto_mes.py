@@ -21,7 +21,7 @@
 
 # Agregar por produto e mês
 df_relatorio_produto_mes = df_carts_items.groupBy("product", "ano_mes").agg(
-    count("cart_pk").alias("qtd_carrinhos_abandonados"),
+    countDistinct("cart_pk").alias("qtd_carrinhos_abandonados"),
     sum("quantity").alias("qtd_itens_abandonados"),
     spark_round(sum("entry_totalprice"), 2).alias("valor_nao_faturado")
 ).orderBy("product", "ano_mes")
@@ -149,7 +149,7 @@ df_maior_variacao.select(
 # MAGIC SELECT 
 # MAGIC     product,
 # MAGIC     ano_mes,
-# MAGIC     COUNT(cart_pk) as qtd_carrinhos_abandonados,
+# MAGIC     COUNT(DISTINCT cart_pk) as qtd_carrinhos_abandonados,
 # MAGIC     SUM(quantity) as qtd_itens_abandonados,
 # MAGIC     ROUND(SUM(entry_totalprice), 2) as valor_nao_faturado
 # MAGIC FROM carts_items

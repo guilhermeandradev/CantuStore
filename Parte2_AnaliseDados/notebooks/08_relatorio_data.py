@@ -21,7 +21,7 @@
 
 # Agregar por data
 df_relatorio_data = df_carts_items.groupBy("data").agg(
-    count("cart_pk").alias("qtd_carrinhos_abandonados"),
+    countDistinct("cart_pk").alias("qtd_carrinhos_abandonados"),
     sum("quantity").alias("qtd_itens_abandonados"),
     spark_round(sum("entry_totalprice"), 2).alias("valor_nao_faturado")
 ).orderBy("data")
@@ -118,7 +118,7 @@ df_dia_semana = df_carts_items.withColumn(
 )
 
 df_por_dia_semana = df_dia_semana.groupBy("dia_semana", "dia_semana_nome").agg(
-    count("cart_pk").alias("qtd_carrinhos"),
+    countDistinct("cart_pk").alias("qtd_carrinhos"),
     spark_round(avg(col("entry_totalprice")), 2).alias("valor_medio")
 ).orderBy("dia_semana")
 
@@ -188,7 +188,7 @@ df_outliers.show(30, truncate=False)
 # MAGIC -- Relatório diário
 # MAGIC SELECT 
 # MAGIC     data,
-# MAGIC     COUNT(cart_pk) as qtd_carrinhos_abandonados,
+# MAGIC     COUNT(DISTINCT cart_pk) as qtd_carrinhos_abandonados,
 # MAGIC     SUM(quantity) as qtd_itens_abandonados,
 # MAGIC     ROUND(SUM(entry_totalprice), 2) as valor_nao_faturado
 # MAGIC FROM carts_items
@@ -212,7 +212,7 @@ df_padrao_mensal = df_carts_items.withColumn(
     .when(col("dia_mes") <= 20, "Meio (11-20)")
     .otherwise("Final (21-31)")
 ).groupBy("periodo_mes").agg(
-    count("cart_pk").alias("qtd_carrinhos"),
+    countDistinct("cart_pk").alias("qtd_carrinhos"),
     spark_round(avg(col("entry_totalprice")), 2).alias("valor_medio")
 ).orderBy("periodo_mes")
 

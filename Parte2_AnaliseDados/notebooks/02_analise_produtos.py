@@ -16,7 +16,7 @@
 
 # Agregar por produto
 df_produtos_abandonados = df_carts_items.groupBy("product").agg(
-    count("cart_pk").alias("qtd_carrinhos"),
+    countDistinct("cart_pk").alias("qtd_carrinhos"),
     sum("quantity").alias("qtd_itens"),
     spark_round(sum("entry_totalprice"), 2).alias("valor_total")
 ).orderBy(col("qtd_carrinhos").desc())
@@ -59,7 +59,7 @@ print("="*70)
 # MAGIC %sql
 # MAGIC SELECT 
 # MAGIC     product,
-# MAGIC     COUNT(cart_pk) as qtd_carrinhos,
+# MAGIC     COUNT(DISTINCT cart_pk) as qtd_carrinhos,
 # MAGIC     SUM(quantity) as qtd_itens,
 # MAGIC     ROUND(SUM(entry_totalprice), 2) as valor_total
 # MAGIC FROM carts_items

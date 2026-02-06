@@ -37,7 +37,7 @@ print(f"✓ Carrinhos com informação de estado: {df_carts_estados.count():,}")
 
 # Agregar por estado
 df_abandonos_estado = df_carts_estados.groupBy("estado").agg(
-    count("cart_pk").alias("qtd_carrinhos"),
+    countDistinct("cart_pk").alias("qtd_carrinhos"),
     spark_round(sum("cart_totalprice"), 2).alias("valor_total"),
     spark_round(avg("cart_totalprice"), 2).alias("ticket_medio")
 ).orderBy(col("qtd_carrinhos").desc())
@@ -58,7 +58,7 @@ df_abandonos_estado.show(30, truncate=False)
 df_estado_temporal = df_carts_estados.withColumn(
     "ano_mes", date_format(col("cart_created"), "yyyy-MM")
 ).groupBy("estado", "ano_mes").agg(
-    count("cart_pk").alias("qtd_carrinhos")
+    countDistinct("cart_pk").alias("qtd_carrinhos")
 ).orderBy("estado", "ano_mes")
 
 print("✓ Dados temporais por estado calculados")
@@ -189,7 +189,7 @@ df_por_regiao.show()
 
 # Top CEPs com mais abandonos (dentro dos top estados)
 df_top_ceps = df_carts_estados.filter(col("estado").isin(top_5_estados)).filter(col("cep").isNotNull()).groupBy("estado", "cep").agg(
-    count("cart_pk").alias("qtd_carrinhos")
+    countDistinct("cart_pk").alias("qtd_carrinhos")
 ).orderBy(col("qtd_carrinhos").desc())
 
 print("="*80)
