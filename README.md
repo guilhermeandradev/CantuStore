@@ -264,7 +264,7 @@ Para visualizar:
 O projeto aplica **filtros automáticos** no notebook 01 para garantir análise precisa:
 
 ### **1. Deduplicação**
-- Remove PKs duplicados em `tb_carts`
+- Remove **11.134 PKs duplicados** em `tb_carts`
 - Mantém apenas o primeiro registro de cada carrinho
 
 ### **2. Filtro de Abandono**
@@ -274,7 +274,26 @@ O projeto aplica **filtros automáticos** no notebook 01 para garantir análise 
 
 ### **3. Remoção de Outliers**
 - Remove carrinhos com valor total > R$ 50.000
-- Elimina carrinhos de teste/erro/anomalias
+- Elimina **4.267 outliers** (carrinhos de teste/erro)
+
+### **📊 Dataset Final (Após Filtros)**
+
+```
+Período: 2019-12-16 a 2022-07-26 (2,61 anos / 953 dias)
+
+Carrinhos abandonados: 905.180
+Total de itens abandonados: 2.769.758
+Valor total não faturado: R$ 6.267.369.294,36
+
+Ticket médio: R$ 6.923,89
+Itens por carrinho: 3,06 pneus
+Preço médio por item: R$ 2.262,79
+
+Abandonos por dia: 950 carrinhos
+Valor não faturado por dia: R$ 6.576.463,06
+
+✅ Todos os valores validados para e-commerce de pneus premium
+```
 
 > 📖 **Documentação completa dos filtros**: [FILTROS_CARRINHOS_ABANDONADOS.md](Parte2_AnaliseDados/FILTROS_CARRINHOS_ABANDONADOS.md)
 
@@ -378,21 +397,19 @@ O projeto aplica **filtros automáticos** no notebook 01 para garantir análise 
 
 ---
 
-## 👥 Autor
+## 📄 Relatório Técnico
 
-Projeto desenvolvido como parte de avaliação técnica.
+Para uma visão executiva completa do projeto, consulte:
+
+📋 **[RELATORIO_TECNICO_CANTUSTORE.md](RELATORIO_TECNICO_CANTUSTORE.md)**
+
+O relatório contém:
+- Explicação detalhada de todas as soluções SQL
+- Arquitetura completa da análise de dados
+- Insights e recomendações de negócio
+- Métricas de qualidade e desafios superados
 
 ---
 
-## 📝 Licença
-
-Este projeto foi desenvolvido para fins educacionais e de avaliação técnica.
-
----
-
-## 📞 Dúvidas?
-
-Em caso de dúvidas durante a execução:
-1. Consulte a documentação específica em `Parte2_AnaliseDados/`
-2. Verifique a seção de **Troubleshooting** acima
-3. Revise os comentários inline nos notebooks
+**CantuStore - Plataforma de tecnologia e logística em pneus**  
+*Se o assunto é pneu, você resolve aqui.*
