@@ -2,7 +2,7 @@
 # MAGIC %md
 # MAGIC # CANTUSTORE - Setup e Configuração
 # MAGIC ## Notebook 00 - Configuração Inicial
-# MAGIC 
+# MAGIC
 # MAGIC Este notebook configura o ambiente e define variáveis globais para o projeto.
 
 # COMMAND ----------
@@ -25,7 +25,6 @@ from pyspark.sql.functions import (
 from pyspark.sql.window import Window
 from pyspark.sql.types import *
 import pandas as pd
-
 print("✓ Imports realizados com sucesso")
 
 # COMMAND ----------
