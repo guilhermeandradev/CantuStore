@@ -122,6 +122,15 @@ df_carts_items = df_carts.alias("c").join(
     "data", date_format(col("cart_created"), "yyyy-MM-dd")
 )
 
+# IMPORTANTE: Converter preços de centavos para reais (dividir por 100)
+df_carts_items = df_carts_items.withColumn(
+    "cart_totalprice",
+    col("cart_totalprice") / 100
+).withColumn(
+    "entry_totalprice",
+    col("entry_totalprice") / 100
+)
+
 # Criar view temporária
 df_carts_items.createOrReplaceTempView("carts_items")
 
