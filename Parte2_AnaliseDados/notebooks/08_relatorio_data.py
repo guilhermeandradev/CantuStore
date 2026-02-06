@@ -165,7 +165,8 @@ q1 = percentis[0]
 q3 = percentis[1]
 iqr = q3 - q1
 limite_superior = q3 + (1.5 * iqr)
-limite_inferior = max(0, q1 - (1.5 * iqr))
+# Usar operador ternário ao invés de max() (conflito com PySpark max)
+limite_inferior = q1 - (1.5 * iqr) if q1 - (1.5 * iqr) > 0 else 0
 
 df_outliers = df_relatorio_data.filter(
     (col("qtd_carrinhos_abandonados") > limite_superior) |

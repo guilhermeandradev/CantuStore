@@ -21,7 +21,7 @@ df_carts_estados = df_carts.alias("c").join(
     "left"
 ).join(
     df_regions.alias("r"),
-    col("a.p_region") == col("r.PK"),
+    col("a.p_region").cast("long") == col("r.PK"),  # Cast necessário: p_region é Double, PK é Long
     "left"
 ).select(
     col("c.PK").alias("cart_pk"),
