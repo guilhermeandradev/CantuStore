@@ -35,9 +35,9 @@ print("✓ Imports realizados com sucesso")
 
 # COMMAND ----------
 
-# Definir caminho base dos dados no DBFS
-# IMPORTANTE: Ajuste este caminho conforme onde você fez upload dos dados
-BASE_PATH = "/FileStore/cantustore/"
+# Definir caminho base dos dados no Unity Catalog Volume
+# Caminho configurado para o volume criado no Databricks
+BASE_PATH = "/Volumes/workspace/default/cantustore_data/"
 
 # Paths específicos para cada tabela
 PATHS = {

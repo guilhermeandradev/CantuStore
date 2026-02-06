@@ -267,7 +267,7 @@ PARA BAIXAR O ARQUIVO
 ================================================================================
 
 1. Via UI do Databricks:
-   - Navegue para: Data > DBFS > FileStore > cantustore > resultados
+   - Navegue para: Catalog > workspace > default > cantustore_data > resultados
    - Clique em "top50_carrinhos.txt"
    - Clique em "Download"
 
