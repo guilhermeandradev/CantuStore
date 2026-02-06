@@ -20,20 +20,27 @@ Este documento resume o conteúdo e objetivo de cada notebook do projeto.
 
 ---
 
-### 01_carregamento_dados.py - Carregamento de Dados
-**Objetivo:** Carregar todas as tabelas e criar views temporárias
+### 01_carregamento_dados.py - Carregamento e Limpeza de Dados
+**Objetivo:** Carregar todas as tabelas, aplicar filtros e criar views temporárias
 
 **O que faz:**
 - Carrega tabelas Parquet (carts, cartentries, addresses, paymentinfos)
 - Carrega tabelas CSV (users, regions, paymentmodes, cmssitelp)
-- Cria views temporárias para uso com SQL
-- Gera DataFrame principal (JOIN carts + cartentries)
+- **DEDUPLICAÇÃO**: Remove 11.134 PKs duplicados em tb_carts
+- **FILTRO DE ABANDONO**: Seleciona apenas carrinhos abandonados
+  - `p_paymentinfo IS NULL` (nunca iniciou pagamento)
+  - `p_totalprice > 0` (tem produtos)
+- **REMOÇÃO DE OUTLIERS**: Remove carrinhos > R$ 50.000 (4.267 outliers)
+- Gera DataFrame principal (JOIN carts abandonados + cartentries)
 - Adiciona colunas de data (ano, mês, ano_mes, data)
-- Faz cache do DataFrame principal para performance
+- Calcula estatísticas finais do dataset
 
 **Saída:** 
 - 8 views temporárias criadas
-- DataFrame `df_carts_items` em cache
+- DataFrame `df_carts_items` com apenas carrinhos abandonados realistas
+- **905.180 carrinhos abandonados** | R$ 6,27 bilhões | Ticket médio: R$ 6.923,89
+
+> 📖 **Documentação dos filtros**: [FILTROS_CARRINHOS_ABANDONADOS.md](FILTROS_CARRINHOS_ABANDONADOS.md)
 
 ---
 

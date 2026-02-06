@@ -90,11 +90,62 @@ preview_data(df_cartentries, "tb_cartentries", 3)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## Criar DataFrame Principal (Carts + Entries)
+# MAGIC ## Limpeza e Preparação de tb_carts
 
 # COMMAND ----------
 
-# JOIN carrinhos com itens + adicionar colunas de data
+print("="*80)
+print("LIMPEZA DE DADOS: tb_carts")
+print("="*80)
+
+# 1. DEDUPLICAÇÃO: Remover PKs duplicados
+print("\n1. Deduplicação de tb_carts...")
+from pyspark.sql.window import Window
+
+window_dedup = Window.partitionBy("PK").orderBy("createdTS")
+
+df_carts_original = df_carts.count()
+df_carts_dedup = df_carts.withColumn(
+    "rn",
+    row_number().over(window_dedup)
+).filter(col("rn") == 1).drop("rn")
+
+df_carts_dedup_count = df_carts_dedup.count()
+duplicatas_removidas = df_carts_original - df_carts_dedup_count
+
+print(f"  Carrinhos originais: {df_carts_original:,}")
+print(f"  Carrinhos únicos: {df_carts_dedup_count:,}")
+print(f"  Duplicatas removidas: {duplicatas_removidas:,}")
+
+# 2. FILTRO: Apenas carrinhos ABANDONADOS
+print("\n2. Filtro de carrinhos abandonados...")
+print("  Critérios:")
+print("    - p_paymentinfo IS NULL (nunca iniciou pagamento)")
+print("    - p_totalprice > 0 (tem produtos)")
+
+df_carts_abandonados = df_carts_dedup.filter(
+    (col("p_paymentinfo").isNull()) & (col("p_totalprice") > 0)
+)
+
+carrinhos_abandonados = df_carts_abandonados.count()
+print(f"  Carrinhos abandonados: {carrinhos_abandonados:,}")
+
+# Atualizar df_carts para usar apenas abandonados
+df_carts = df_carts_abandonados
+df_carts.createOrReplaceTempView("carts")
+
+print("="*80)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Criar DataFrame Principal (Carts Abandonados + Entries)
+
+# COMMAND ----------
+
+print("Criando DataFrame principal...")
+
+# JOIN carrinhos abandonados com itens + adicionar colunas de data
 df_carts_items = df_carts.alias("c").join(
     df_cartentries.alias("ce"),
     col("c.PK") == col("ce.p_order"),
@@ -125,13 +176,90 @@ df_carts_items = df_carts.alias("c").join(
 # NOTA: Os valores já estão no formato correto (reais com 2 decimais)
 # NÃO é necessário dividir por 100
 
+print(f"✓ df_carts_items criado: {df_carts_items.count():,} registros")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Remoção de Outliers
+
+# COMMAND ----------
+
+print("="*80)
+print("REMOÇÃO DE OUTLIERS")
+print("="*80)
+
+# Calcular total por carrinho
+df_totais_por_cart = df_carts_items.groupBy("cart_pk").agg(
+    spark_round(sum("entry_totalprice"), 2).alias("cart_total")
+)
+
+# Identificar outliers (> R$ 50.000)
+LIMITE_OUTLIER = 50000
+
+outliers_count = df_totais_por_cart.filter(col("cart_total") > LIMITE_OUTLIER).count()
+outliers_valor = df_totais_por_cart.filter(col("cart_total") > LIMITE_OUTLIER).agg(
+    spark_round(sum("cart_total"), 2)
+).collect()[0][0]
+
+print(f"\nOutliers identificados (carrinhos > R$ {LIMITE_OUTLIER:,.2f}):")
+print(f"  Quantidade: {outliers_count:,} carrinhos")
+print(f"  Valor total: R$ {outliers_valor:,.2f}")
+
+# Filtrar carrinhos SEM outliers
+df_carts_limpo = df_totais_por_cart.filter(col("cart_total") <= LIMITE_OUTLIER)
+
+# JOIN para manter apenas entries de carrinhos limpos
+df_carts_items = df_carts_items.join(
+    df_carts_limpo.select("cart_pk"),
+    "cart_pk",
+    "inner"
+)
+
 # Criar view temporária
 df_carts_items.createOrReplaceTempView("carts_items")
 
 # Cache não é necessário no Serverless - otimização automática
 # df_carts_items.cache()
 
-print(f"✓ df_carts_items criado: {df_carts_items.count():,} registros")
+print(f"\n✓ DataFrame final (sem outliers): {df_carts_items.count():,} registros")
+print("="*80)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Estatísticas Finais
+
+# COMMAND ----------
+
+# Calcular estatísticas do dataset final
+stats = df_carts_items.agg(
+    countDistinct("cart_pk").alias("carrinhos_unicos"),
+    spark_round(sum("entry_totalprice"), 2).alias("valor_total"),
+    sum("quantity").alias("itens_total")
+).collect()[0]
+
+carrinhos = stats['carrinhos_unicos']
+valor_total = stats['valor_total']
+itens_total = stats['itens_total']
+
+ticket_medio = valor_total / carrinhos
+itens_por_carrinho = itens_total / carrinhos
+preco_por_item = valor_total / itens_total
+
+print("="*80)
+print("ESTATÍSTICAS DO DATASET FINAL")
+print("="*80)
+print(f"\nCarrinhos abandonados: {carrinhos:,}")
+print(f"Total de itens: {itens_total:,.0f}")
+print(f"Valor total não faturado: R$ {valor_total:,.2f}")
+print(f"\nTicket médio: R$ {ticket_medio:,.2f}")
+print(f"Itens por carrinho: {itens_por_carrinho:.2f}")
+print(f"Preço médio por item: R$ {preco_por_item:,.2f}")
+print("="*80)
+
+# Preview dos dados
+print("\nPreview do DataFrame:")
 df_carts_items.show(5)
 
 # COMMAND ----------
@@ -141,13 +269,24 @@ df_carts_items.show(5)
 
 # COMMAND ----------
 
-print("""
+print(f"""
 ================================================================================
-DADOS CARREGADOS COM SUCESSO
+DADOS CARREGADOS E PROCESSADOS COM SUCESSO
 ================================================================================
 
+FILTROS APLICADOS:
+1. ✓ Deduplicação de tb_carts ({duplicatas_removidas:,} duplicatas removidas)
+2. ✓ Apenas carrinhos ABANDONADOS (p_paymentinfo IS NULL + p_totalprice > 0)
+3. ✓ Outliers removidos ({outliers_count:,} carrinhos > R$ {LIMITE_OUTLIER:,.2f})
+
+DATASET FINAL:
+- Carrinhos abandonados: {carrinhos:,}
+- Itens abandonados: {itens_total:,.0f}
+- Valor não faturado: R$ {valor_total:,.2f}
+- Ticket médio: R$ {ticket_medio:,.2f}
+
 Views temporárias criadas:
-- carts
+- carts (apenas abandonados, sem duplicatas)
 - cartentries
 - addresses
 - paymentinfos
@@ -155,10 +294,10 @@ Views temporárias criadas:
 - regions
 - paymentmodes
 - cmssitelp
-- carts_items (JOIN principal com colunas de data)
+- carts_items (JOIN principal com filtros aplicados)
 
-DataFrame principal em cache: df_carts_items
+DataFrame principal: df_carts_items
 
-Próximo passo: Execute os notebooks de análise (02 a 06)
+Próximo passo: Execute os notebooks de análise (02 a 09)
 ================================================================================
 """)

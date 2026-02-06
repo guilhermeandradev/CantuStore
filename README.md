@@ -113,6 +113,37 @@ Execute os notebooks na ordem:
 
 ---
 
+## 🔍 Filtros de Dados Aplicados
+
+Para garantir uma análise precisa, os seguintes filtros são aplicados automaticamente no **notebook 01**:
+
+### **1. Deduplicação**
+- Remove 11.134 PKs duplicados em `tb_carts`
+- Mantém apenas o primeiro registro de cada carrinho
+
+### **2. Filtro de Abandono**
+- **p_paymentinfo IS NULL**: Carrinho nunca iniciou pagamento
+- **p_totalprice > 0**: Carrinho tem produtos adicionados
+- **Resultado**: Apenas carrinhos REALMENTE abandonados
+
+### **3. Remoção de Outliers**
+- Remove carrinhos com valor total > R$ 50.000
+- Elimina 4.267 outliers (carrinhos de teste/erro)
+
+### **Dataset Final**
+```
+Carrinhos abandonados: 905.180
+Valor total não faturado: R$ 6,27 bilhões
+Ticket médio: R$ 6.923,89
+Período: 2019-12-16 a 2022-07-26 (2,61 anos)
+
+✅ Todos os valores validados para e-commerce de pneus premium
+```
+
+> 📖 **Documentação completa**: [FILTROS_CARRINHOS_ABANDONADOS.md](Parte2_AnaliseDados/FILTROS_CARRINHOS_ABANDONADOS.md)
+
+---
+
 ## 📊 Resultados Obtidos
 
 ### Análises Principais
